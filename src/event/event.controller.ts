@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Query } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDTO } from './dto/request/create-event.dto';
 import { GetEventByIdDTO } from './dto/request/get-event-by-id.dto';
@@ -13,7 +13,6 @@ import { UpdateTaggedUsersDTO } from './dto/request/update-tagged-users.dto';
 import { UpdateTitleDTO } from './dto/request/update-title-dto';
 import { UpdateTypeDTO } from './dto/request/update-type.dto';
 import { PaginationQueryDTO } from 'src/firebase/dto/pagination-query.dto';
-
 
 @Controller('event')
 export class EventController {
@@ -85,8 +84,7 @@ export class EventController {
   }
 
   @Get('/find/filter')
-  public async paginate(@Query() request: PaginationQueryDTO){
+  public async paginate(@Query() request: PaginationQueryDTO) {
     return await this.eventService.paginate(request);
   }
-
 }
