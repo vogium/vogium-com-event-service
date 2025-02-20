@@ -147,25 +147,38 @@ export class FirebaseService implements OnModuleInit {
   }
 
   async paginate(collectionName: string, query: PaginationQueryDTO) {
-    const { _start = 0, _end = 10, ...filters } = query;
+    const { start = 0, end = 10, sort, order, filters } = query;
+
     const collectionRef = admin.firestore().collection(collectionName);
 
     let firebaseQuery: FirebaseFirestore.Query = collectionRef;
 
-    Object.keys(filters).forEach((key) => {
-      const value = filters[key];
-      if (value) {
-        const parsedValue = this.parseQueryParam(value);
-        firebaseQuery = firebaseQuery.where(key, '==', parsedValue);
-      }
-    });
+    if (filters && filters.length > 0) {
+      Object.keys(filters).forEach((key) => {
+        const filter = filters[key];
+
+        if (filter) {
+          firebaseQuery = firebaseQuery.where(
+            filter.field,
+            filter.operator,
+            filter.value,
+          );
+        }
+      });
+    }
 
     // Pagination işlemi
-    const limit = _end - _start;
+    const limit = end - start;
     let snapshot = await firebaseQuery.get();
+
     const totalRecords = snapshot.size;
-    firebaseQuery = firebaseQuery.limit(limit).offset(Number(_start));
+    firebaseQuery = firebaseQuery.limit(limit).offset(Number(start));
+
+    if (sort && order && sort !== '')
+      firebaseQuery = firebaseQuery.orderBy(sort, order);
+
     snapshot = await firebaseQuery.get();
+
     const data = snapshot.docs.map((doc) => doc.data());
 
     return {
@@ -174,28 +187,9 @@ export class FirebaseService implements OnModuleInit {
         totalRecords,
         totalPages: Math.ceil(totalRecords / limit),
         pageSize: limit,
-        currentPage: Math.floor(_start / limit) + 1,
+        currentPage: Math.floor(start / limit) + 1,
       },
     };
-  }
-
-  private parseQueryParam(
-    param: string | undefined,
-  ): boolean | number | string | undefined {
-    if (param === undefined) return undefined;
-
-    // Boolean dönüşümü
-    if (param === 'true' || param === 'false') {
-      return param === 'true';
-    }
-
-    // Number dönüşümü
-    if (!isNaN(Number(param))) {
-      return Number(param);
-    }
-
-    // String olarak bırak
-    return param;
   }
 
   public async uploadFileFromBase64(

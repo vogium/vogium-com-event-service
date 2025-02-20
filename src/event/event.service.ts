@@ -111,7 +111,7 @@ export class EventService {
 
   public async updateMedia(request: UpdateMediaUrlDTO) {
     const { id, media } = request;
-    const mediaUrl = await this.handleFiles(media, 'mediaUrl');
+    const mediaUrl = await this.handleFiles(media, 'media');
     const { firebaseResponse, response } = await this.getEventById(
       new GetEventByIdDTO(id),
     );
@@ -150,7 +150,7 @@ export class EventService {
     const { id, mediaThumbnail: mediaThumbnail } = request;
     const mediaThumbnailUrl = await this.handleFiles(
       mediaThumbnail,
-      'mediaThumbnailUrl',
+      'thumbnail',
     );
     const { firebaseResponse, response } = await this.getEventById(
       new GetEventByIdDTO(id),
